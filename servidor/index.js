@@ -8,18 +8,45 @@ app.use(cors());
 app.use(express.json());
 
 const db = mysql.createConnection({
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: "mysqlfatec",
-    database: 'aulabd'
+  host: "localhost",
+  port: 3306,
+  user: "root",
+  password: "mysqlfatec",
+  database: "aulabd",
 });
 
+app.post("/alunos", async (req, res) => {
+  const { nome, cidade, estado } = req.body;
+
+  const sql = `INSERT INTO alunos(nome,cidade,estado) VALUES (?,?,?)`;
+  db.query(sql, [nome, cidade, estado], (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: "Erro ao cadastrar aluno!" });
+    }
+    res
+      .status(201)
+      .json({ message: "Aluno cadastrado com sucesso!", id: result.insertId });
+  });
+});
+
+app.get("/alunos", async (req,res) => {
+    const sql = "SELECT * FROM alunos";
+
+    db.query(sql,(err,result) => {
+        if(err){
+            return res.status(500).json({error: "Erro ao consultar alunos"});
+        }
+        res.json(result)
+    });
+})
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando em http://localhost:${PORT}`);
+});
 db.connect((erro) => {
-    if (erro) {
-        console.error("Erro ao conectar ao MySQL: ", erro);
-    }
-    else {
-        console.log("Conectado ao MySQL conectado com sucesso!");
-    }
+  if (erro) {
+    console.error("Erro ao conectar ao MySQL: ", erro);
+  } else {
+    console.log("Conectado ao MySQL conectado com sucesso!");
+  }
 });
